@@ -1,0 +1,16 @@
+lib/Mozilla/Mechanize/GUITester/Gesture.pm
+t/html/load.html
+t/html/simple_gui.html
+t/html/drag_and_drop.html
+t/html/draw.html
+t/040_draw.t
+t/010_simple.t
+t/020_dnd.t
+t/030_status.t
+MANIFEST
+README
+LICENSE
+Makefile.PL
+lib/Mozilla/Mechanize/GUITester.pm
+t/001_load.t
+META.yml                                 Module meta-data (added by MakeMaker)
