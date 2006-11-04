@@ -9,8 +9,9 @@ use Mozilla::ObserverService;
 use X11::GUITest qw(ClickMouseButton :CONST
 		PressMouseButton ReleaseMouseButton);
 use File::Temp qw(tempdir);
+use Mozilla::ConsoleService;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -35,11 +36,11 @@ Mozilla::Mechanize::GUITester - enhances Mozilla::Mechanize with GUI testing.
   $mech->x_mouse_move($elem, 4, 4);
   $mech->x_mouse_up($elem, 4, 4);
 
-  # drag element to (2,3) relative to client window
-  $mech->x_drag_and_drop($elem, 2, 3);
-
   # run some javascript code and print its result
   print $mech->run_js('return "js: " + 2');
+
+  # are there any javascript errors?
+  print Dumper($mech->console_messages);
 
   # find out HTTP response status (works only for HTTP protocol)
   print $mech->status;
@@ -71,6 +72,8 @@ sub new {
 	$ENV{HOME} = $home;
 	$self->{_home} = $td;
 	$self->{_popups} = {};
+	$self->{_console_messages} = [];
+
 	Mozilla::PromptService::Register({ DEFAULT => sub {
 		my $name = shift;
 		$self->{_popups}->{$name} = [ @_ ];
@@ -80,6 +83,9 @@ sub new {
 			my $channel = shift;
 			$self->{_response_status} = $channel->responseStatus;
 		},
+	});
+	Mozilla::ConsoleService::Register(sub {
+		push @{ $self->console_messages }, shift();
 	});
 	return $self;
 }
@@ -104,6 +110,16 @@ It is useful for communication from javascript.
 
 =cut
 sub last_alert { return shift()->{_popups}->{Alert}->[2]; }
+
+=head2 $mech->console_messages
+
+Returns arrayref of all console messages (e.g. javascript errors) aggregated
+so far.
+
+See Mozilla nsIConsoleService documentation for more details.
+
+=cut
+sub console_messages { return shift()->{_console_messages}; }
 
 =head1 METHODS
 
@@ -165,22 +181,6 @@ sub x_click {
 		my $g = shift;
 		$g->element_mouse_move($by_left, $by_top);
 		ClickMouseButton(M_LEFT);
-	});
-}
-
-=head2 $mech->x_drag_and_drop($element, $x, $y)
-
-Drags and drops $element to ($x, $y) relative to window coordinates.
-
-=cut
-sub x_drag_and_drop {
-	my ($self, $entry, $by_left, $by_top) = @_;
-	$self->_with_gesture_do($entry, sub {
-		my $g = shift;
-		$g->element_mouse_move(0, 0);
-		PressMouseButton(M_LEFT);
-		$g->window_mouse_move($by_left, $by_top);
-		ReleaseMouseButton(M_LEFT);
 	});
 }
 

@@ -1,8 +1,10 @@
 lib/Mozilla/Mechanize/GUITester/Gesture.pm
+t/html/error.html
 t/html/load.html
 t/html/simple_gui.html
 t/html/drag_and_drop.html
 t/html/draw.html
+t/050_console.t
 t/040_draw.t
 t/010_simple.t
 t/020_dnd.t

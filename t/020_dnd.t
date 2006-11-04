@@ -20,7 +20,8 @@ my $g = $mech->gesture($e);
 is($g->element_x, $g->window_x + 54);
 is($g->element_y, $g->window_y + 123);
 
-$mech->x_drag_and_drop($e, 64, 133);
+$mech->x_mouse_down($e, 0, 0);
+$mech->x_mouse_up($e, 10, 10);
 $g = $mech->gesture($e);
 is($g->element_x, $g->window_x + 64);
 is($g->element_y, $g->window_y + 133);

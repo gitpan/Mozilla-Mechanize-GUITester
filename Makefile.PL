@@ -6,11 +6,12 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME         => 'Mozilla::Mechanize::GUITester',
     VERSION_FROM => 'lib/Mozilla/Mechanize/GUITester.pm', # finds \$VERSION
-    AUTHOR       => 'A. U. Thor (a.u.thor@a.galaxy.far.far.away)',
-    ABSTRACT     => 'Module abstract (<= 44 characters) goes here',
+    AUTHOR       => 'Boris Sukholitko (boriss@gmail.com)',
+    ABSTRACT     => 'Mozilla DHTML/Javascript testing',
     PREREQ_PM    => { 'Mozilla::PromptService' => '',
     			'X11::GUITest' => '',
 			'Mozilla::ObserverService' => '',
+			'Mozilla::ConsoleService' => '',
 			'Mozilla::Mechanize' => '',
 			'Class::Accessor' => '',
 			'Mozilla::DOM' => '',
