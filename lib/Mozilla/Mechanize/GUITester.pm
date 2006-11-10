@@ -6,12 +6,12 @@ use base 'Mozilla::Mechanize';
 use Mozilla::Mechanize::GUITester::Gesture;
 use Mozilla::PromptService;
 use Mozilla::ObserverService;
-use X11::GUITest qw(ClickMouseButton :CONST
+use X11::GUITest qw(ClickMouseButton :CONST SendKeys
 		PressMouseButton ReleaseMouseButton);
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -36,8 +36,14 @@ Mozilla::Mechanize::GUITester - enhances Mozilla::Mechanize with GUI testing.
   $mech->x_mouse_move($elem, 4, 4);
   $mech->x_mouse_up($elem, 4, 4);
 
+  # send keystrokes to the application
+  $mech->x_send_keys('{DEL}');
+
   # run some javascript code and print its result
   print $mech->run_js('return "js: " + 2');
+
+  # find out element style using its id
+  print $mech->get_element_style_by_id('the_elem_id', 'background-color');
 
   # are there any javascript errors?
   print Dumper($mech->console_messages);
@@ -143,9 +149,23 @@ ENDS
 	return $self->last_alert;
 }
 
+=head2 $mech->get_element_style_by_id($element_id, $style_attribute)
+
+Uses Mozilla's getComputedStyle to return value of C<$style_attribute> for
+the element located with C<$element_id>.
+
+=cut
+sub get_element_style_by_id {
+	my ($self, $elem, $attr) = @_;
+	return $self->run_js(<<ENDS);
+return window.getComputedStyle(document.getElementById("$elem"), null).$attr;
+ENDS
+}
+
 sub gesture {
 	my ($self, $e) = @_;
-	return Mozilla::Mechanize::GUITester::Gesture->new({ element => $e });
+	return Mozilla::Mechanize::GUITester::Gesture->new({
+			element => $e });
 }
 
 =head2 $mech->get_html_element_by_id($html_id)
@@ -161,13 +181,17 @@ sub get_html_element_by_id {
 	return $e->QueryInterface($iid);
 }
 
+sub _wait_for_gtk {
+	my $run = 1;
+	Glib::Timeout->add(100, sub { undef $run; });
+	Gtk2->main_iteration while ($run || Gtk2->events_pending);
+}
+
 sub _with_gesture_do {
 	my ($self, $elem, $func) = @_;
 	my $g = $self->gesture($elem);
 	$func->($g);
-	my $run = 1;
-	Glib::Timeout->add(100, sub { undef $run; });
-	Gtk2->main_iteration while ($run || Gtk2->events_pending);
+	$self->_wait_for_gtk;
 }
 
 =head2 $mech->x_click($element, $x, $y)
@@ -223,6 +247,18 @@ sub x_mouse_move {
 		my $g = shift;
 		$g->element_mouse_move($by_left, $by_top);
 	});
+}
+
+=head2 $mech->x_send_keys($self, $keystroke)
+
+Sends $keystroke to mozilla window. It uses X11::GUITest SendKeys function.
+Please see its documentation for possible C<$keystroke> values.
+
+=cut
+sub x_send_keys {
+	my ($self, $keys) = @_;
+	SendKeys($keys);
+	$self->_wait_for_gtk;
 }
 
 1;
