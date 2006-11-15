@@ -6,12 +6,12 @@ use base 'Mozilla::Mechanize';
 use Mozilla::Mechanize::GUITester::Gesture;
 use Mozilla::PromptService;
 use Mozilla::ObserverService;
-use X11::GUITest qw(ClickMouseButton :CONST SendKeys
-		PressMouseButton ReleaseMouseButton);
+use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
+		PressMouseButton ReleaseMouseButton PressKey);
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 NAME
 
@@ -38,6 +38,10 @@ Mozilla::Mechanize::GUITester - enhances Mozilla::Mechanize with GUI testing.
 
   # send keystrokes to the application
   $mech->x_send_keys('{DEL}');
+
+  # press and release left CTRL button. You can click in the middle.
+  $mech->x_press_key('LCT');
+  $mech->x_release_key('LCT');
 
   # run some javascript code and print its result
   print $mech->run_js('return "js: " + 2');
@@ -249,7 +253,7 @@ sub x_mouse_move {
 	});
 }
 
-=head2 $mech->x_send_keys($self, $keystroke)
+=head2 $mech->x_send_keys($keystroke)
 
 Sends $keystroke to mozilla window. It uses X11::GUITest SendKeys function.
 Please see its documentation for possible C<$keystroke> values.
@@ -258,6 +262,30 @@ Please see its documentation for possible C<$keystroke> values.
 sub x_send_keys {
 	my ($self, $keys) = @_;
 	SendKeys($keys);
+	$self->_wait_for_gtk;
+}
+
+=head2 $mech->x_press_key($key)
+
+Uses X11::GUITest PressKey function.  Please see its documentation for
+possible C<$key> values.
+
+=cut
+sub x_press_key {
+	my ($self, $key) = @_;
+	PressKey($key);
+	$self->_wait_for_gtk;
+}
+
+=head2 $mech->x_release_key($keystroke)
+
+Uses X11::GUITest ReleaseKey function to release previously pressed key.
+Please see its X11::GUITest documentation for possible C<$key> values.
+
+=cut
+sub x_release_key {
+	my ($self, $key) = @_;
+	ReleaseKey($key);
 	$self->_wait_for_gtk;
 }
 
