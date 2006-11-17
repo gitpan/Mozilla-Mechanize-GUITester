@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 13;
+use Test::More tests => 14;
 use URI::file;
 
 BEGIN { use_ok('Mozilla::Mechanize::GUITester'); }
@@ -39,3 +39,11 @@ ok($p3);
 isnt($mech->gesture($p3)->element_x, $mech->gesture($p1)->element_x);
 $mech->x_mouse_move($p3, 4, 4);
 is($mech->last_alert, 'p3_mouse_move 246 12');
+is($mech->pull_alerts, 'p1_mouse_down 9 9
+p1_mouse_up 9 9
+p1_mouse_down 10 10
+p1_mouse_up 13 15
+p2_mouse_down 125 8
+p2_mouse_down 127 10
+p3_mouse_move 246 12
+');

@@ -11,7 +11,7 @@ use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 NAME
 
@@ -82,12 +82,14 @@ sub new {
 	$ENV{HOME} = $home;
 	$self->{_home} = $td;
 	$self->{_popups} = {};
+	$self->{_alerts} = '';
 	$self->{_console_messages} = [];
 
 	Mozilla::PromptService::Register({ DEFAULT => sub {
 		my $name = shift;
 		$self->{_popups}->{$name} = [ @_ ];
-	} });
+		$self->{_alerts} .= $_[2] . "\n";
+	}, });
 	Mozilla::ObserverService::Register({
 		'http-on-examine-response' => sub {
 			my $channel = shift;
@@ -132,6 +134,19 @@ See Mozilla nsIConsoleService documentation for more details.
 sub console_messages { return shift()->{_console_messages}; }
 
 =head1 METHODS
+
+=head2 $mech->pull_alerts
+
+Pulls all alerts aggregated so far and resets alerts stash. Useful for JS
+debugging.
+
+=cut
+sub pull_alerts {
+	my $self = shift;
+	my $res = $self->{_alerts};
+	$self->{_alerts} = '';
+	return $res;
+}
 
 =head2 $mech->run_js($js_code)
 
