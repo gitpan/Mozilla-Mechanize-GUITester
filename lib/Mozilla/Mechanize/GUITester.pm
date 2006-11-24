@@ -11,7 +11,7 @@ use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 NAME
 
@@ -302,6 +302,31 @@ sub x_release_key {
 	my ($self, $key) = @_;
 	ReleaseKey($key);
 	$self->_wait_for_gtk;
+}
+
+=head2 $mech->x_change_text($input, $value)
+
+Changes value of C<$input> edit box to C<$value>. All JavaScript events are
+fired. It also works on textarea element.
+
+=cut
+sub x_change_text {
+	my ($self, $in, $val) = @_;
+	my $input;
+	my $iid = Mozilla::DOM::HTMLInputElement->GetIID;
+	eval { $input = $in->QueryInterface($iid); };
+	unless ($input) {
+		$iid = Mozilla::DOM::HTMLTextAreaElement->GetIID;
+		eval { $input = $in->QueryInterface($iid); };
+	}
+	$input->SetValue("");
+	$self->_with_gesture_do($in, sub {
+		my $g = shift;
+		$g->element_mouse_move(0, 0);
+		ClickMouseButton(M_LEFT);
+		SendKeys($val);
+		SendKeys('{TAB}');
+	});
 }
 
 1;
