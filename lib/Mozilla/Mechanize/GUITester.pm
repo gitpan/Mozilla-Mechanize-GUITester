@@ -7,11 +7,12 @@ use Mozilla::Mechanize::GUITester::Gesture;
 use Mozilla::PromptService;
 use Mozilla::ObserverService;
 use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
-		PressMouseButton ReleaseMouseButton PressKey);
+		PressMouseButton ReleaseMouseButton PressKey
+		FindWindowLike ResizeWindow GetScreenRes);
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 NAME
 
@@ -134,6 +135,19 @@ See Mozilla nsIConsoleService documentation for more details.
 sub console_messages { return shift()->{_console_messages}; }
 
 =head1 METHODS
+
+=head2 $mech->x_resize_window($width, $height)
+
+Resizes window to $width, $height. Dies if the screen is too small for it.
+
+=cut
+sub x_resize_window {
+	my ($self, $width, $height) = @_;
+	my ($x, $y) = GetScreenRes();
+	die "Screen width is too small: $x < $width" if ($x < $width);
+	die "Screen height is too small: $y < $height" if ($y < $height);
+	ResizeWindow(FindWindowLike('Mozilla::Mechanize'), $width, $height);
+}
 
 =head2 $mech->pull_alerts
 

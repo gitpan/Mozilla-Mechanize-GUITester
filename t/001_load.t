@@ -1,13 +1,21 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 10;
+use Test::More tests => 12;
 use URI::file;
+use X11::GUITest qw(FindWindowLike GetWindowPos);
 
 BEGIN { use_ok('Mozilla::Mechanize::GUITester'); }
 
 my $mech = Mozilla::Mechanize::GUITester->new(quiet => 1, visible => 0);
 isa_ok($mech, 'Mozilla::Mechanize::GUITester');
 ok($mech->can('get'));
+
+$mech->x_resize_window(800, 600);
+
+my ($win_id) = FindWindowLike('Mozilla::Mechanize');
+my ($x, $y, $width, $height, $bor_w, $scr) = GetWindowPos($win_id);
+is($width, 800);
+is($height, 600);
 
 my $url = URI::file->new_abs("t/html/load.html")->as_string;
 ok($mech->get($url));
