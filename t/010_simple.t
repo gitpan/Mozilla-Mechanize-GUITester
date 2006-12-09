@@ -18,5 +18,5 @@ ok($g);
 is($g->element_x, $g->window_x + 8);
 is($g->element_y, $g->window_y + 8);
 
-$mech->x_click($e, 0, 0);
+$mech->x_click($e, 1, 1);
 is($mech->last_alert, "clicked");

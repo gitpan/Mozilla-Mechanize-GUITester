@@ -12,7 +12,7 @@ use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 NAME
 
@@ -56,6 +56,10 @@ Mozilla::Mechanize::GUITester - enhances Mozilla::Mechanize with GUI testing.
   # find out HTTP response status (works only for HTTP protocol)
   print $mech->status;
 
+  # change some text box by sending keypresses - fires all JS events
+  my $input = $mech->get_html_element_by_id("tbox", "Input");
+  $mech->x_change_text($input, "Hi");
+
 =head1 DESCRIPTION
 
 This module enhances Mozilla::Mechanize with convenience functions allowing
@@ -90,7 +94,7 @@ sub new {
 		my $name = shift;
 		$self->{_popups}->{$name} = [ @_ ];
 		$self->{_alerts} .= $_[2] . "\n";
-	}, });
+	}, Prompt => sub { return $self->{_prompt_result}; } });
 	Mozilla::ObserverService::Register({
 		'http-on-examine-response' => sub {
 			my $channel = shift;
@@ -162,6 +166,16 @@ sub pull_alerts {
 	return $res;
 }
 
+=head2 $mech->set_prompt_result($res)
+
+Future prompt JavaScript calls will return C<$res> as a result.
+
+=cut
+sub set_prompt_result {
+	my ($self, $res) = @_;
+	$self->{_prompt_result} = $res;
+}
+
 =head2 $mech->run_js($js_code)
 
 Wraps $js_code with JavaScript function and invokes it. Its result is
@@ -201,17 +215,19 @@ sub gesture {
 			element => $e });
 }
 
-=head2 $mech->get_html_element_by_id($html_id)
+=head2 $mech->get_html_element_by_id($html_id, $elem_type)
 
 Uses GetElementById and QueryInterface to get Mozilla::DOM::HTMLElement.
+If $elem_type is given queries Mozilla::DOM::HTML<$elem_type>Element.
 
 See Mozilla::DOM documentation for more details.
 
 =cut
 sub get_html_element_by_id {
-	my $e = shift()->get_document->GetElementById(shift()) or return;
-	my $iid = Mozilla::DOM::HTMLElement->GetIID;
-	return $e->QueryInterface($iid);
+	my ($self, $id, $type) = @_;
+	my $e = $self->get_document->GetElementById($id) or return;
+	my $dom_class = "Mozilla::DOM::HTML" . ($type || '') . "Element";
+	return $e->QueryInterface($dom_class->GetIID);
 }
 
 sub _wait_for_gtk {
@@ -325,21 +341,37 @@ fired. It also works on textarea element.
 
 =cut
 sub x_change_text {
-	my ($self, $in, $val) = @_;
-	my $input;
-	my $iid = Mozilla::DOM::HTMLInputElement->GetIID;
-	eval { $input = $in->QueryInterface($iid); };
-	unless ($input) {
-		$iid = Mozilla::DOM::HTMLTextAreaElement->GetIID;
-		eval { $input = $in->QueryInterface($iid); };
-	}
+	my ($self, $input, $val) = @_;
 	$input->SetValue("");
-	$self->_with_gesture_do($in, sub {
+	$self->_with_gesture_do($input, sub {
 		my $g = shift;
 		$g->element_mouse_move(0, 0);
 		ClickMouseButton(M_LEFT);
 		SendKeys($val);
 		SendKeys('{TAB}');
+	});
+}
+
+=head2 $mech->x_change_select($input, $option_no)
+
+Chooses option C<$option_no> of C<$input> select. All JavaScript events are
+fired.
+
+=cut
+sub x_change_select {
+	my ($self, $input, $opno) = @_;
+	my $times = $opno - $input->GetSelectedIndex;
+	my $key = "{DOW}";
+	if ($times < 0) {
+		$key = "{UP}";
+		$times *= -1;
+	}
+	$self->_with_gesture_do($input, sub {
+		my $g = shift;
+		$g->element_mouse_move(1, 1);
+		ClickMouseButton(M_LEFT);
+		SendKeys($key) for (1 .. $times);
+		SendKeys('{ENT}');
 	});
 }
 

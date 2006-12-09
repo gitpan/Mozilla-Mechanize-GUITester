@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 13;
+use Test::More tests => 12;
 use URI::file;
 
 BEGIN { use_ok('Mozilla::Mechanize::GUITester'); }
@@ -13,23 +13,19 @@ my $url = URI::file->new_abs("t/html/text.html")->as_string;
 ok($mech->get($url));
 is($mech->title, 'Text');
 
-my $it = $mech->get_html_element_by_id("it");
-my $input = $it->QueryInterface(Mozilla::DOM::HTMLInputElement->GetIID);
+my $input = $mech->get_html_element_by_id("it", "Input");
 isnt($input, undef);
 is($input->GetValue, 44);
 
-$mech->x_change_text($it, "55");
+$mech->x_change_text($input, "55");
 is($input->GetValue, 55);
 is($mech->last_alert, "changed with 55");
 
-my $ta = $mech->get_html_element_by_id("ta");
-isnt($ta, undef);
-
-my $textarea = $ta->QueryInterface(Mozilla::DOM::HTMLTextAreaElement->GetIID);
+my $textarea = $mech->get_html_element_by_id("ta", "TextArea");
 isnt($textarea, undef);
 is($textarea->GetValue, "Text Area\n");
 
-$mech->x_change_text($ta, "New Area");
+$mech->x_change_text($textarea, "New Area");
 is($textarea->GetValue, "New Area");
 is($mech->last_alert, "textarea changed with New Area");
 
