@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 13;
+use Test::More tests => 15;
 use URI::file;
 use X11::GUITest qw(FindWindowLike GetWindowPos);
 
@@ -28,6 +28,8 @@ is($mech->run_js('return 2 + 3'), '5');
 my $e = $mech->get_html_element_by_id('d');
 ok($e);
 is($e->GetClassName, 'hi');
+is($mech->get_element_style($e, "color"), "rgb(0, 0, 0)");
+is($mech->get_element_style_by_id("d", "background-color"), "transparent");
 
 $mech->set_prompt_result("goo");
 is($mech->run_js('return prompt("ggg");'), "goo");

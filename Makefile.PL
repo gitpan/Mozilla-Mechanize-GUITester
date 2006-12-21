@@ -15,6 +15,7 @@ WriteMakefile(
 			'Mozilla::Mechanize' => '',
 			'Class::Accessor' => '',
 			'Mozilla::DOM' => '',
+			'Mozilla::DOM::ComputedStyle' => '',
                     },
 );
 

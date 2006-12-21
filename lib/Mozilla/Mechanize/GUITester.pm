@@ -11,8 +11,9 @@ use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
 		FindWindowLike ResizeWindow GetScreenRes);
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
+use Mozilla::DOM::ComputedStyle;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 NAME
 
@@ -196,17 +197,27 @@ ENDS
 	return $self->last_alert;
 }
 
+=head2 $mech->get_element_style($element, $style_attribute)
+
+Uses Mozilla::DOM::ComputedStyle to get property value of C<$style_attribute>
+for the C<$element> retrieved by GetElementById previously.
+
+=cut
+sub get_element_style {
+	my ($self, $el, $attr) = @_;
+	return Get_Computed_Style_Property($self->get_window, $el, $attr);
+}
+
 =head2 $mech->get_element_style_by_id($element_id, $style_attribute)
 
-Uses Mozilla's getComputedStyle to return value of C<$style_attribute> for
-the element located with C<$element_id>.
+Convenience function to retrieve style property by C<$element_id>. See
+C<$mech->get_element_style>.
 
 =cut
 sub get_element_style_by_id {
-	my ($self, $elem, $attr) = @_;
-	return $self->run_js(<<ENDS);
-return window.getComputedStyle(document.getElementById("$elem"), null).$attr;
-ENDS
+	my ($self, $id, $attr) = @_;
+	return $self->get_element_style(
+			$self->get_document->GetElementById($id), $attr);
 }
 
 sub gesture {
