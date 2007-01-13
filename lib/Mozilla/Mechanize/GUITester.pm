@@ -6,6 +6,7 @@ use base 'Mozilla::Mechanize';
 use Mozilla::Mechanize::GUITester::Gesture;
 use Mozilla::PromptService;
 use Mozilla::ObserverService;
+use Mozilla::SourceViewer;
 use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
 		PressMouseButton ReleaseMouseButton PressKey
 		FindWindowLike ResizeWindow GetScreenRes);
@@ -13,7 +14,7 @@ use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 NAME
 
@@ -218,6 +219,27 @@ sub get_element_style_by_id {
 	my ($self, $id, $attr) = @_;
 	return $self->get_element_style(
 			$self->get_document->GetElementById($id), $attr);
+}
+
+=head2 $mech->calculated_content
+
+This is basically body.innerHTML content as provided by Mozilla::Mechanize.
+See its documentation for more info.
+
+=cut
+sub calculated_content {
+	return shift()->SUPER::content(@_);
+}
+
+=head2 $mech->content
+
+This is more like "View Source" page content. It leaves html tags intact and
+also doesn't evaluate javascript's document.write calls.
+
+=cut
+sub content {
+	my $self = shift;
+	return Get_Page_Source($self->agent->{embed});
 }
 
 sub gesture {

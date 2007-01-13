@@ -1,17 +1,18 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Mozilla-Mechanize-GUITester
-version:      0.09
+version:      0.10
 version_from: lib/Mozilla/Mechanize/GUITester.pm
 installdirs:  site
 requires:
     Class::Accessor:               
-    Mozilla::ConsoleService:       
+    Mozilla::ConsoleService:       0.02
     Mozilla::DOM:                  
     Mozilla::DOM::ComputedStyle:   
     Mozilla::Mechanize:            
-    Mozilla::ObserverService:      
+    Mozilla::ObserverService:      0.02
     Mozilla::PromptService:        0.02
+    Mozilla::SourceViewer:         
     X11::GUITest:                  
 
 distribution_type: module

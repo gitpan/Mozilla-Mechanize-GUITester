@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 15;
+use Test::More tests => 17;
 use URI::file;
 use X11::GUITest qw(FindWindowLike GetWindowPos);
 
@@ -20,7 +20,9 @@ is($height, 600);
 my $url = URI::file->new_abs("t/html/load.html")->as_string;
 ok($mech->get($url));
 is($mech->title, 'Load Test');
-like($mech->content, qr/Hello Load Test/);
+like($mech->calculated_content, qr/Hello Load Test/);
+like($mech->content, qr#<br />#);
+like($mech->content, qr#document\.write#);
 
 is($mech->run_js('return document.title'), 'Load Test');
 is($mech->run_js('return 2 + 3'), '5');
