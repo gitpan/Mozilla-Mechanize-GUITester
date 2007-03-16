@@ -12,7 +12,7 @@ WriteMakefile(
     			'X11::GUITest' => '',
 			'Mozilla::ObserverService' => '0.02',
 			'Mozilla::ConsoleService' => '0.02',
-			'Mozilla::SourceViewer' => '',
+			'Mozilla::SourceViewer' => '0.04',
 			'Mozilla::Mechanize' => '',
 			'Class::Accessor' => '',
 			'Mozilla::DOM' => '',

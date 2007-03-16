@@ -14,7 +14,7 @@ use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 =head1 NAME
 
@@ -245,7 +245,7 @@ sub content {
 sub gesture {
 	my ($self, $e) = @_;
 	return Mozilla::Mechanize::GUITester::Gesture->new({
-			element => $e });
+			element => $e, dom_window => $self->get_window });
 }
 
 =head2 $mech->get_html_element_by_id($html_id, $elem_type)
@@ -378,7 +378,7 @@ sub x_change_text {
 	$input->SetValue("");
 	$self->_with_gesture_do($input, sub {
 		my $g = shift;
-		$g->element_mouse_move(0, 0);
+		$g->element_mouse_move(1, 1);
 		ClickMouseButton(M_LEFT);
 		SendKeys($val);
 		SendKeys('{TAB}');

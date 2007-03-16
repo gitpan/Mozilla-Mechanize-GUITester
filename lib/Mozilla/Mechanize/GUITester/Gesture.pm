@@ -6,8 +6,8 @@ use base 'Class::Accessor';
 use Mozilla::DOM;
 use X11::GUITest qw(FindWindowLike GetWindowPos MoveMouseAbs);
 
-__PACKAGE__->mk_accessors(qw(element element_x element_y window_x
-			window_y));
+__PACKAGE__->mk_accessors(qw(element element_top element_left window_x
+			window_y dom_window));
 
 sub _get_window_position {
 	my $self = shift;
@@ -28,9 +28,12 @@ sub _calculate_element_position {
 		$left += $elem->GetOffsetLeft;
 		$elem = $elem->GetOffsetParent;
 	}
-	$self->element_x($left + $self->window_x);
-	$self->element_y($top + $self->window_y);
+	$self->element_top($top);
+	$self->element_left($left);
 }
+
+sub element_x { return $_[0]->element_left + $_[0]->window_x; }
+sub element_y { return $_[0]->element_top + $_[0]->window_y; }
 
 sub new {
 	my $self = shift()->SUPER::new(@_);
@@ -41,7 +44,15 @@ sub new {
 
 sub element_mouse_move {
 	my ($self, $by_x, $by_y) = @_;
-	MoveMouseAbs($self->element_x + $by_x, $self->element_y + $by_y);
+	my $dwin = $self->dom_window;
+	my $iwin = $dwin->QueryInterface(Mozilla::DOM::WindowInternal->GetIID);
+	my $left = $self->element_left + $by_x;
+	my $top = $self->element_top + $by_y;
+	# Once Mozilla::DOM implements it...
+	# $dwin->ScrollTo($left, $top);
+	Mozilla::SourceViewer::Scroll_To($dwin, $left, $top);
+	MoveMouseAbs($left + $self->window_x - $iwin->GetPageXOffset
+		, $top + $self->window_y - $iwin->GetPageYOffset);
 }
 
 sub window_mouse_move {

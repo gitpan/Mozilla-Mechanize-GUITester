@@ -7,6 +7,8 @@ t/html/simple_gui.html
 t/html/drag_and_drop.html
 t/html/select.html
 t/html/draw.html
+t/html/scroll.html
+t/090_scroll.t
 t/080_select.t
 t/070_set_text.t
 t/060_sendkeys.t

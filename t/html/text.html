@@ -20,7 +20,7 @@ function on_load() {
 	element.addEventListener("change", on_change, false);
 
 	var textarea = document.getElementById("ta");
-	textarea.addEventListener("change", on_ta_change, false);
+	textarea.addEventListener("blur", on_ta_change, false);
 }
 
 window.addEventListener("load", on_load, false);
