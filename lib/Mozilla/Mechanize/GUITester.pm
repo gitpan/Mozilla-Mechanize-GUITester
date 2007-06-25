@@ -13,8 +13,9 @@ use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
+use Carp;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 =head1 NAME
 
@@ -72,6 +73,9 @@ elements in DOM tree.
 
 It also allows running of arbitrary javascript code in the page context and
 getting back the results.
+
+C<MMG_TIMEOUT> environment variable can be used to adjust timeout of X events
+(given in milliseconds).
 
 =head1 CONSTRUCTION
 
@@ -206,6 +210,8 @@ for the C<$element> retrieved by GetElementById previously.
 =cut
 sub get_element_style {
 	my ($self, $el, $attr) = @_;
+	confess "No element given!" unless $el;
+	confess "No attribute given!" unless $attr;
 	return Get_Computed_Style_Property($self->get_window, $el, $attr);
 }
 
@@ -265,7 +271,8 @@ sub get_html_element_by_id {
 
 sub _wait_for_gtk {
 	my $run = 1;
-	Glib::Timeout->add(100, sub { undef $run; });
+	my $t = $ENV{MMG_TIMEOUT} || 200;
+	Glib::Timeout->add($t, sub { undef $run; });
 	Gtk2->main_iteration while ($run || Gtk2->events_pending);
 }
 
