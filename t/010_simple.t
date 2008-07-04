@@ -1,7 +1,8 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 8;
+use Test::More tests => 11;
 use URI::file;
+use Data::Dumper;
 
 BEGIN { use_ok('Mozilla::Mechanize::GUITester'); }
 
@@ -19,4 +20,16 @@ is($g->element_x, $g->window_x + 8);
 is($g->element_y, $g->window_y + 8);
 
 $mech->x_click($e, 1, 1);
-is($mech->last_alert, "clicked");
+like($mech->last_alert, qr/clicked/);
+
+$mech->pull_alerts;
+$mech->x_click($e, 1, 1, 2);
+my @pua = split("\n", $mech->pull_alerts);
+is(@pua, 2) or diag(Dumper(\@pua));
+
+my ($t1) = ($pua[0] =~ / (\d+)$/);
+my ($t2) = ($pua[1] =~ / (\d+)$/);
+cmp_ok($t2 - $t2, '<', 250);
+
+my $m2 = Mozilla::Mechanize::GUITester->new(quiet => 1, visible => 0);
+isnt($m2->window_id, $mech->window_id);

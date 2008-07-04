@@ -9,13 +9,13 @@ use Mozilla::ObserverService;
 use Mozilla::SourceViewer;
 use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
 		PressMouseButton ReleaseMouseButton PressKey
-		FindWindowLike ResizeWindow GetScreenRes);
+		ResizeWindow GetScreenRes);
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 use Carp;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 =head1 NAME
 
@@ -88,13 +88,16 @@ Mozilla::Mechanize manual for its description.
 sub new {
 	my $home = $ENV{HOME};
 	my $td = tempdir("/tmp/mozilla_guitester_XXXXXX", CLEANUP => 1);
-	$ENV{HOME} = $td;
+	local $ENV{HOME} = $td;
+	local $ENV{MOZ_NO_REMOTE} = 1;
 	my $self = shift()->SUPER::new(@_);
-	$ENV{HOME} = $home;
 	$self->{_home} = $td;
 	$self->{_popups} = {};
 	$self->{_alerts} = '';
 	$self->{_console_messages} = [];
+
+	$self->{_window_id} = $self->agent->{window}->window->XWINDOW;
+	confess("# Unable to find window id") unless $self->window_id;
 
 	Mozilla::PromptService::Register({ DEFAULT => sub {
 		my $name = shift;
@@ -108,7 +111,8 @@ sub new {
 		},
 	});
 	Mozilla::ConsoleService::Register(sub {
-		push @{ $self->console_messages }, shift();
+		my $msg = shift;
+		push @{ $self->console_messages }, $msg if $msg;
 	});
 	return $self;
 }
@@ -144,6 +148,13 @@ See Mozilla nsIConsoleService documentation for more details.
 =cut
 sub console_messages { return shift()->{_console_messages}; }
 
+=head2 $mech->window_id
+
+Returns window id of guitester window.
+
+=cut
+sub window_id { return shift()->{_window_id}; }
+
 =head1 METHODS
 
 =head2 $mech->x_resize_window($width, $height)
@@ -156,7 +167,7 @@ sub x_resize_window {
 	my ($x, $y) = GetScreenRes();
 	die "Screen width is too small: $x < $width" if ($x < $width);
 	die "Screen height is too small: $y < $height" if ($y < $height);
-	ResizeWindow(FindWindowLike('Mozilla::Mechanize'), $width, $height);
+	ResizeWindow($self->window_id, $width, $height);
 }
 
 =head2 $mech->pull_alerts
@@ -251,7 +262,8 @@ sub content {
 sub gesture {
 	my ($self, $e) = @_;
 	return Mozilla::Mechanize::GUITester::Gesture->new({
-			element => $e, dom_window => $self->get_window });
+			element => $e, dom_window => $self->get_window
+			, window_id => $self->window_id });
 }
 
 =head2 $mech->get_html_element_by_id($html_id, $elem_type)
@@ -283,17 +295,20 @@ sub _with_gesture_do {
 	$self->_wait_for_gtk;
 }
 
-=head2 $mech->x_click($element, $x, $y)
+=head2 $mech->x_click($element, $x, $y, $times)
 
 Emulates mouse click at ($element.left + $x, $element.top + $y) coordinates.
 
+Optional C<$times> parameter can be used to specify the number of clicks sent.
+
 =cut
 sub x_click {
-	my ($self, $entry, $by_left, $by_top) = @_;
+	my ($self, $entry, $by_left, $by_top, $num) = @_;
+	$num ||= 1;
 	$self->_with_gesture_do($entry, sub {
 		my $g = shift;
 		$g->element_mouse_move($by_left, $by_top);
-		ClickMouseButton(M_LEFT);
+		ClickMouseButton(M_LEFT) for (1 .. $num);
 	});
 }
 
@@ -346,7 +361,7 @@ Please see its documentation for possible C<$keystroke> values.
 =cut
 sub x_send_keys {
 	my ($self, $keys) = @_;
-	SendKeys($keys);
+	SendKeys($keys) or confess "Unable to send $keys";
 	$self->_wait_for_gtk;
 }
 

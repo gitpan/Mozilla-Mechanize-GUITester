@@ -4,17 +4,16 @@ use warnings FATAL => 'all';
 package Mozilla::Mechanize::GUITester::Gesture;
 use base 'Class::Accessor';
 use Mozilla::DOM;
-use X11::GUITest qw(FindWindowLike GetWindowPos MoveMouseAbs);
+use X11::GUITest qw(GetWindowPos MoveMouseAbs);
 
 __PACKAGE__->mk_accessors(qw(element element_top element_left window_x
-			window_y dom_window));
+			window_y dom_window window_id));
 
 sub _D { print STDERR "# $_[0]\n" if $ENV{MMG_DEBUG}; }
 
 sub _get_window_position {
 	my $self = shift;
-	my ($win_id) = FindWindowLike('Mozilla::Mechanize');
-	my ($x, $y, $width, $height, $bor_w, $scr) = GetWindowPos($win_id);
+	my ($x, $y) = GetWindowPos($self->window_id);
 	$self->window_x($x);
 	$self->window_y($y);
 }

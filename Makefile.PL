@@ -8,15 +8,15 @@ WriteMakefile(
     VERSION_FROM => 'lib/Mozilla/Mechanize/GUITester.pm', # finds \$VERSION
     AUTHOR       => 'Boris Sukholitko (boriss@gmail.com)',
     ABSTRACT     => 'Mozilla DHTML/Javascript testing',
-    PREREQ_PM    => { 'Mozilla::PromptService' => '0.02',
+    PREREQ_PM    => { 'Mozilla::PromptService' => '0.04',
     			'X11::GUITest' => '',
-			'Mozilla::ObserverService' => '0.02',
-			'Mozilla::ConsoleService' => '0.02',
-			'Mozilla::SourceViewer' => '0.04',
+			'Mozilla::ObserverService' => '0.03',
+			'Mozilla::ConsoleService' => '0.04',
+			'Mozilla::SourceViewer' => '0.06',
 			'Mozilla::Mechanize' => '',
 			'Class::Accessor' => '',
 			'Mozilla::DOM' => '0.21',
-			'Mozilla::DOM::ComputedStyle' => '',
+			'Mozilla::DOM::ComputedStyle' => '0.03',
                     },
 );
 
