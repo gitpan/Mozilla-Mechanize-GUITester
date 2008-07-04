@@ -15,7 +15,7 @@ use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 use Carp;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 =head1 NAME
 
@@ -398,13 +398,9 @@ fired. It also works on textarea element.
 sub x_change_text {
 	my ($self, $input, $val) = @_;
 	$input->SetValue("");
-	$self->_with_gesture_do($input, sub {
-		my $g = shift;
-		$g->element_mouse_move(1, 1);
-		ClickMouseButton(M_LEFT);
-		SendKeys($val);
-		SendKeys('{TAB}');
-	});
+	$self->x_click($input, 4, 4);
+	$self->x_send_keys($val);
+	$self->x_send_keys('{TAB}');
 }
 
 =head2 $mech->x_change_select($input, $option_no)
@@ -421,13 +417,9 @@ sub x_change_select {
 		$key = "{UP}";
 		$times *= -1;
 	}
-	$self->_with_gesture_do($input, sub {
-		my $g = shift;
-		$g->element_mouse_move(1, 1);
-		ClickMouseButton(M_LEFT);
-		SendKeys($key) for (1 .. $times);
-		SendKeys('{ENT}');
-	});
+	$self->x_click($input, 4, 4);
+	$self->x_send_keys($key) for (1 .. $times);
+	$self->x_send_keys('{ENT}');
 }
 
 1;
