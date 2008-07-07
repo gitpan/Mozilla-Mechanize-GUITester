@@ -33,3 +33,4 @@ cmp_ok($t2 - $t2, '<', 250);
 
 my $m2 = Mozilla::Mechanize::GUITester->new(quiet => 1, visible => 0);
 isnt($m2->window_id, $mech->window_id);
+$mech->close;

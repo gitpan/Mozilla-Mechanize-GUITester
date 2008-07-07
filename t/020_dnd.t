@@ -26,3 +26,4 @@ $g = $mech->gesture($e);
 is($g->element_x, $g->window_x + 64);
 is($g->element_y, $g->window_y + 133);
 
+$mech->close;

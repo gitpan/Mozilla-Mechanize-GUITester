@@ -25,3 +25,4 @@ $mech->x_press_key('LCT');
 $mech->x_click($e, 0, 0);
 $mech->x_release_key('LCT');
 is($mech->last_alert, "clicked with true");
+$mech->close;

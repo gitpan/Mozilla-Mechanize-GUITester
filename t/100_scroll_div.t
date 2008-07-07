@@ -33,3 +33,4 @@ my $t = time;
 	$mech->x_send_keys("");
 }
 cmp_ok(time - 1, '>=', $t);
+$mech->close;

@@ -29,3 +29,4 @@ $mech->x_change_text($textarea, "New Area");
 is($textarea->GetValue, "New Area");
 is($mech->last_alert, "textarea changed with New Area");
 
+$mech->close;

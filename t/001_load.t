@@ -42,3 +42,4 @@ is($mech->get_element_style_by_id("d", "background-color"), "transparent");
 $mech->set_prompt_result("goo");
 is($mech->run_js('return prompt("ggg");'), "goo");
 
+$mech->close;

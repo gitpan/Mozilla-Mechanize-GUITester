@@ -15,7 +15,7 @@ use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 use Carp;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 =head1 NAME
 
@@ -110,7 +110,7 @@ sub new {
 			$self->{_response_status} = $channel->responseStatus;
 		},
 	});
-	Mozilla::ConsoleService::Register(sub {
+	$self->{_console_handle} = Mozilla::ConsoleService::Register(sub {
 		my $msg = shift;
 		push @{ $self->console_messages }, $msg if $msg;
 	});
@@ -420,6 +420,12 @@ sub x_change_select {
 	$self->x_click($input, 4, 4);
 	$self->x_send_keys($key) for (1 .. $times);
 	$self->x_send_keys('{ENT}');
+}
+
+sub close {
+	my $self = shift;
+	Mozilla::ConsoleService::Unregister($self->{_console_handle});
+	$self->SUPER::close(@_);
 }
 
 1;

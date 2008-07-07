@@ -11,3 +11,4 @@ isa_ok($mech, 'Mozilla::Mechanize::GUITester');
 ok($mech->get('http://search.cpan.org'));
 is($mech->status, 200);
 is_deeply($mech->console_messages, []);
+$mech->close;

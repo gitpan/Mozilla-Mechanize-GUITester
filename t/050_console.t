@@ -17,3 +17,4 @@ is($mech->title, 'Error');
 my $cms = $mech->console_messages;
 is(@$cms, 1);
 like($cms->[0], qr/missing/);
+$mech->close;

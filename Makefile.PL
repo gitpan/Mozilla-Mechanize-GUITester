@@ -11,7 +11,7 @@ WriteMakefile(
     PREREQ_PM    => { 'Mozilla::PromptService' => '0.04',
     			'X11::GUITest' => '',
 			'Mozilla::ObserverService' => '0.03',
-			'Mozilla::ConsoleService' => '0.04',
+			'Mozilla::ConsoleService' => '0.05',
 			'Mozilla::SourceViewer' => '0.06',
 			'Mozilla::Mechanize' => '',
 			'Class::Accessor' => '',

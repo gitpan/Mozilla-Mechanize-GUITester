@@ -28,3 +28,4 @@ is($mech->pull_alerts, "clicked\n");
 my $e2 = $mech->get_html_element_by_id("but2");
 $mech->x_click($e, 110, 110);
 is($mech->pull_alerts, "clicked 2\n");
+$mech->close;

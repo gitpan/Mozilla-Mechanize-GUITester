@@ -47,3 +47,4 @@ p2_mouse_down 125 8
 p2_mouse_down 127 10
 p3_mouse_move 246 12
 ');
+$mech->close;

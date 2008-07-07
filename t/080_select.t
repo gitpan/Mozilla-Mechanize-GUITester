@@ -28,3 +28,4 @@ like($mech->pull_alerts, qr/changed/);
 $mech->x_change_select($sel, 1);
 is($sel->GetSelectedIndex, 1);
 like($mech->pull_alerts, qr/changed/);
+$mech->close;
