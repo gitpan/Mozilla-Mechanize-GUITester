@@ -15,7 +15,7 @@ use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 use Carp;
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 =head1 NAME
 
@@ -103,7 +103,8 @@ sub new {
 		my $name = shift;
 		$self->{_popups}->{$name} = [ @_ ];
 		$self->{_alerts} .= $_[2] . "\n";
-	}, Prompt => sub { return $self->{_prompt_result}; } });
+	} , Confirm => sub { return $self->{_confirm_result} }
+	, Prompt => sub { return $self->{_prompt_result}; } });
 	Mozilla::ObserverService::Register({
 		'http-on-examine-response' => sub {
 			my $channel = shift;
@@ -181,6 +182,16 @@ sub pull_alerts {
 	my $res = $self->{_alerts};
 	$self->{_alerts} = '';
 	return $res;
+}
+
+=head2 $mech->set_confirm_result($res)
+
+Future C<confirm> JavaScript calls will return C<$res> as a result.
+
+=cut
+sub set_confirm_result {
+	my ($self, $res) = @_;
+	$self->{_confirm_result} = $res;
 }
 
 =head2 $mech->set_prompt_result($res)
@@ -285,6 +296,7 @@ sub _wait_for_gtk {
 	my $run = 1;
 	my $t = $ENV{MMG_TIMEOUT} || 200;
 	Glib::Timeout->add($t, sub { undef $run; });
+	no warnings 'uninitialized';
 	Gtk2->main_iteration while ($run || Gtk2->events_pending);
 }
 
@@ -426,6 +438,18 @@ sub close {
 	my $self = shift;
 	Mozilla::ConsoleService::Unregister($self->{_console_handle});
 	$self->SUPER::close(@_);
+}
+
+sub set_fields {
+	my ($self, %fields) = @_;
+	for my $n (keys %fields) {
+		my $el;
+		eval { $el = $self->get_html_element_by_id($n, "Input") };
+		next unless $el;
+		$el->GetType eq 'checkbox' or next;
+		$el->SetChecked(1) if delete $fields{$n};
+	}
+	$self->SUPER::set_fields(%fields);
 }
 
 1;

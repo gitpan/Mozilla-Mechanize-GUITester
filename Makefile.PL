@@ -8,7 +8,7 @@ WriteMakefile(
     VERSION_FROM => 'lib/Mozilla/Mechanize/GUITester.pm', # finds \$VERSION
     AUTHOR       => 'Boris Sukholitko (boriss@gmail.com)',
     ABSTRACT     => 'Mozilla DHTML/Javascript testing',
-    PREREQ_PM    => { 'Mozilla::PromptService' => '0.04',
+    PREREQ_PM    => { 'Mozilla::PromptService' => '0.05',
     			'X11::GUITest' => '',
 			'Mozilla::ObserverService' => '0.03',
 			'Mozilla::ConsoleService' => '0.05',
