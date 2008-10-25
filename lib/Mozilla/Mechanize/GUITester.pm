@@ -15,7 +15,7 @@ use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 use Carp;
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 =head1 NAME
 
@@ -447,7 +447,7 @@ sub set_fields {
 		eval { $el = $self->get_html_element_by_id($n, "Input") };
 		next unless $el;
 		$el->GetType eq 'checkbox' or next;
-		$el->SetChecked(1) if delete $fields{$n};
+		$el->SetChecked(delete $fields{$n});
 	}
 	$self->SUPER::set_fields(%fields);
 }

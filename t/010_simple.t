@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 16;
+use Test::More tests => 18;
 use URI::file;
 use Data::Dumper;
 
@@ -46,6 +46,10 @@ is($ch->GetValue, 99);
 
 my $ta = $mech->get_html_element_by_id("tar", "TextArea");
 is($ta->GetValue, 'Te Ar');
+
+$mech->set_fields(che => undef, tar => 'Te Ar');
+is($ch->GetChecked, '');
+is($ch->GetValue, 99);
 
 my $m2 = Mozilla::Mechanize::GUITester->new(quiet => 1, visible => 0);
 isnt($m2->window_id, $mech->window_id);
