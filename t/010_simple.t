@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 18;
+use Test::More tests => 19;
 use URI::file;
 use Data::Dumper;
 
@@ -43,6 +43,8 @@ $mech->set_fields(che => 1, tar => 'Te Ar');
 my $ch = $mech->get_html_element_by_id("che", "Input");
 is($ch->GetChecked, 1);
 is($ch->GetValue, 99);
+
+is($mech->qi($mech->get_html_element_by_id("che"), "Input")->GetValue, 99);
 
 my $ta = $mech->get_html_element_by_id("tar", "TextArea");
 is($ta->GetValue, 'Te Ar');

@@ -3,6 +3,7 @@ t/html/text.html
 t/html/keys.html
 t/html/error.html
 t/html/load.html
+t/html/zoom.html
 t/html/simple_gui.html
 t/html/drag_and_drop.html
 t/html/select.html

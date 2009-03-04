@@ -1,19 +1,22 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Mozilla-Mechanize-GUITester
-version:      0.17
-version_from: lib/Mozilla/Mechanize/GUITester.pm
-installdirs:  site
-requires:
+--- #YAML:1.0
+name:                Mozilla-Mechanize-GUITester
+version:             0.18
+abstract:            Mozilla DHTML/Javascript testing
+license:             ~
+author:              
+    - Boris Sukholitko (boriss@gmail.com)
+generated_by:        ExtUtils::MakeMaker version 6.42
+distribution_type:   module
+requires:     
     Class::Accessor:               
     Mozilla::ConsoleService:       0.05
     Mozilla::DOM:                  0.21
-    Mozilla::DOM::ComputedStyle:   0.03
+    Mozilla::DOM::ComputedStyle:   0.04
     Mozilla::Mechanize:            
     Mozilla::ObserverService:      0.03
     Mozilla::PromptService:        0.05
     Mozilla::SourceViewer:         0.06
     X11::GUITest:                  
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.30_01
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

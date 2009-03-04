@@ -7,7 +7,7 @@ use Mozilla::DOM;
 use X11::GUITest qw(GetWindowPos MoveMouseAbs);
 
 __PACKAGE__->mk_accessors(qw(element element_top element_left window_x
-			window_y dom_window window_id));
+			zoom window_y dom_window window_id));
 
 sub _D { print STDERR "# $_[0]\n" if $ENV{MMG_DEBUG}; }
 
@@ -25,8 +25,8 @@ sub _calculate_element_position {
 	my $iid = Mozilla::DOM::NSHTMLElement->GetIID;
 	while ($elem) {
 		$elem = $elem->QueryInterface($iid) or last;
-		$top += $elem->GetOffsetTop;
-		$left += $elem->GetOffsetLeft;
+		$top += $elem->GetOffsetTop * $self->zoom;
+		$left += $elem->GetOffsetLeft * $self->zoom;
 		$elem = $elem->GetOffsetParent;
 	}
 	$self->element_top($top);
@@ -56,8 +56,8 @@ sub _adjust_scrolls {
 
 		_D("adjusting scrolls $left $top " . $e->GetScrollLeft
 			. " " . $e->GetScrollTop);
-		$top -= $e->GetScrollTop;
-		$left -= $e->GetScrollLeft;
+		$top -= $e->GetScrollTop * $self->zoom;
+		$left -= $e->GetScrollLeft * $self->zoom;
 	}
 	return ($left + $by_x, $top + $by_y);
 }

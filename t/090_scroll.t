@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 8;
+use Test::More tests => 16;
 use URI::file;
 
 BEGIN { use_ok('Mozilla::Mechanize::GUITester'); }
@@ -28,4 +28,32 @@ is($mech->pull_alerts, "clicked\n");
 my $e2 = $mech->get_html_element_by_id("but2");
 $mech->x_click($e, 110, 110);
 is($mech->pull_alerts, "clicked 2\n");
+
+$mech->x_resize_window(1000, 700);
+
+$url = URI::file->new_abs("t/html/zoom.html")->as_string;
+ok($mech->get($url));
+is($mech->title, 'Zoom');
+
+my $but = $mech->get_html_element_by_id("but");
+isnt($but, undef);
+
+$mech->x_click($but, 13, 13);
+is($mech->pull_alerts, "clicked\n");
+
+$mech->set_full_zoom(1.5);
+$mech->x_click($but, 13, 13);
+is($mech->pull_alerts, "clicked\n");
+
+$mech->x_resize_window(100, 100);
+ok($mech->get($url));
+is($mech->title, 'Zoom');
+
+$but = $mech->get_html_element_by_id("but");
+# $ENV{MMG_DEBUG} = 1;
+$mech->x_click($but, 13, 13);
+is($mech->pull_alerts, "clicked\n");
+
+# readline(\*STDIN);
+
 $mech->close;

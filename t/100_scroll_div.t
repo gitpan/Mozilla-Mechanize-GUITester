@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 10;
+use Test::More tests => 14;
 use URI::file;
 
 BEGIN { use_ok('Mozilla::Mechanize::GUITester'); }
@@ -33,4 +33,12 @@ my $t = time;
 	$mech->x_send_keys("");
 }
 cmp_ok(time - 1, '>=', $t);
+
+is($mech->get_full_zoom, 1);
+is($mech->get_element_style_by_id("cdiv", "border-left-width"), "1px");
+
+$mech->set_full_zoom(1.5);
+is($mech->get_full_zoom, 1.5);
+is($mech->get_element_style_by_id("cdiv", "border-left-width"), "0.666667px");
+
 $mech->close;

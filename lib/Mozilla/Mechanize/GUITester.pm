@@ -2,7 +2,16 @@ use strict;
 use warnings FATAL => 'all';
 
 package Mozilla::Mechanize::GUITester;
-use base 'Mozilla::Mechanize';
+
+BEGIN {
+	# capture possible Xlib messages on STDERR
+	use IO::CaptureOutput qw(capture);
+	capture(sub {
+		eval "use base 'Mozilla::Mechanize'";
+	});
+	die "Unable to use Mozilla::Mechanize: $@" if $@;
+};
+
 use Mozilla::Mechanize::GUITester::Gesture;
 use Mozilla::PromptService;
 use Mozilla::ObserverService;
@@ -15,7 +24,7 @@ use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 use Carp;
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 
 =head1 NAME
 
@@ -249,6 +258,25 @@ sub get_element_style_by_id {
 			$self->get_document->GetElementById($id), $attr);
 }
 
+=head2 $mech->get_full_zoom
+
+Returns current full zoom value
+
+=cut
+sub get_full_zoom {
+	return Get_Full_Zoom(shift()->{agent}->{embed}->get_nsIWebBrowser);
+}
+
+=head2 $mech->set_full_zoom($zoom)
+
+Sets full zoom to C<$zoom>.
+
+=cut
+sub set_full_zoom {
+	return Set_Full_Zoom(shift()->{agent}->{embed}->get_nsIWebBrowser
+			, shift);
+}
+
 =head2 $mech->calculated_content
 
 This is basically body.innerHTML content as provided by Mozilla::Mechanize.
@@ -274,6 +302,7 @@ sub gesture {
 	my ($self, $e) = @_;
 	return Mozilla::Mechanize::GUITester::Gesture->new({
 			element => $e, dom_window => $self->get_window
+			, zoom => $self->get_full_zoom
 			, window_id => $self->window_id });
 }
 
@@ -450,6 +479,17 @@ sub set_fields {
 		$el->SetChecked(delete $fields{$n});
 	}
 	$self->SUPER::set_fields(%fields);
+}
+
+=head2 $mech->qi($elem, $interface)
+
+Queries interface Mozilla::DOM::HTML$interfaceElement of C<$elem>.
+
+=cut
+sub qi {
+	confess "# No element" unless $_[1];
+	my $cl = 'Mozilla::DOM::HTML' . ($_[2] || '') . "Element";
+	return $_[1]->QueryInterface($cl->GetIID);
 }
 
 1;
