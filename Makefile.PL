@@ -15,6 +15,7 @@ WriteMakefile(
 			'Mozilla::SourceViewer' => '0.06',
 			'Mozilla::Mechanize' => '',
 			'Class::Accessor' => '',
+			'IO::CaptureOutput' => '',
 			'Mozilla::DOM' => '0.21',
 			'Mozilla::DOM::ComputedStyle' => '0.04',
                     },

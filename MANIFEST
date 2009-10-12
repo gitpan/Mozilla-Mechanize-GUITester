@@ -26,4 +26,6 @@ LICENSE
 Makefile.PL
 lib/Mozilla/Mechanize/GUITester.pm
 t/001_load.t
+t/110_fixed.t
+t/html/fixed.html
 META.yml                                 Module meta-data (added by MakeMaker)

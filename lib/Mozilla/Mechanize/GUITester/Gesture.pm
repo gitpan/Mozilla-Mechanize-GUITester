@@ -5,6 +5,7 @@ package Mozilla::Mechanize::GUITester::Gesture;
 use base 'Class::Accessor';
 use Mozilla::DOM;
 use X11::GUITest qw(GetWindowPos MoveMouseAbs);
+use Mozilla::DOM::ComputedStyle;
 
 __PACKAGE__->mk_accessors(qw(element element_top element_left window_x
 			zoom window_y dom_window window_id));
@@ -37,10 +38,17 @@ sub _adjust_scrolls {
 	my ($self, $by_x, $by_y) = @_;
 	my $iid = Mozilla::DOM::NSHTMLElement->GetIID;
 	my $elem = $self->element->QueryInterface(Mozilla::DOM::Node->GetIID);
+	my $pos = Get_Computed_Style_Property($self->dom_window, $elem
+				, "position");
+
 	$elem->QueryInterface($iid)->ScrollIntoView(1);
 	my ($left, $top) = ($self->element_left, $self->element_top);
 	_D("begin _adjust_scrolls $left $top");
+	goto OUT if ($pos eq 'fixed');
 	while ($elem = $elem->GetParentNode) {
+		goto OUT if Get_Computed_Style_Property($self->dom_window, $elem
+				, "position") eq 'fixed';
+
 		my $e;
 		eval { $e = $elem->QueryInterface($iid); };
 		next unless $e;
@@ -59,6 +67,7 @@ sub _adjust_scrolls {
 		$top -= $e->GetScrollTop * $self->zoom;
 		$left -= $e->GetScrollLeft * $self->zoom;
 	}
+OUT:
 	return ($left + $by_x, $top + $by_y);
 }
 

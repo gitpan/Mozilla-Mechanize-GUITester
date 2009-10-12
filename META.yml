@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Mozilla-Mechanize-GUITester
-version:             0.18
+version:             0.19
 abstract:            Mozilla DHTML/Javascript testing
 license:             ~
 author:              
@@ -9,6 +9,7 @@ generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
 requires:     
     Class::Accessor:               
+    IO::CaptureOutput:             
     Mozilla::ConsoleService:       0.05
     Mozilla::DOM:                  0.21
     Mozilla::DOM::ComputedStyle:   0.04
