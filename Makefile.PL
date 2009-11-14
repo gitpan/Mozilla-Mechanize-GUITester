@@ -17,7 +17,7 @@ WriteMakefile(
 			'Class::Accessor' => '',
 			'IO::CaptureOutput' => '',
 			'Mozilla::DOM' => '0.21',
-			'Mozilla::DOM::ComputedStyle' => '0.04',
+			'Mozilla::DOM::ComputedStyle' => '0.05',
                     },
 );
 

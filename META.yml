@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Mozilla-Mechanize-GUITester
-version:             0.19
+version:             0.20
 abstract:            Mozilla DHTML/Javascript testing
 license:             ~
 author:              
@@ -12,7 +12,7 @@ requires:
     IO::CaptureOutput:             
     Mozilla::ConsoleService:       0.05
     Mozilla::DOM:                  0.21
-    Mozilla::DOM::ComputedStyle:   0.04
+    Mozilla::DOM::ComputedStyle:   0.05
     Mozilla::Mechanize:            
     Mozilla::ObserverService:      0.03
     Mozilla::PromptService:        0.05

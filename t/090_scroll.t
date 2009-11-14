@@ -51,7 +51,7 @@ is($mech->title, 'Zoom');
 
 $but = $mech->get_html_element_by_id("but");
 # $ENV{MMG_DEBUG} = 1;
-$mech->x_click($but, 13, 13);
+$mech->x_click($but, 20, 20);
 is($mech->pull_alerts, "clicked\n");
 
 # readline(\*STDIN);

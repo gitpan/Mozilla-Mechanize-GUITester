@@ -23,8 +23,14 @@ use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 use Carp;
+use Test::More;
 
-our $VERSION = '0.19';
+our $VERSION = '0.20';
+
+sub _N {
+	my ($self, $msg) = @_;
+	diag($msg . " $self->{_reqs_count}") if $ENV{MMG_NET};
+}
 
 =head1 NAME
 
@@ -114,11 +120,20 @@ sub new {
 		$self->{_alerts} .= $_[2] . "\n";
 	} , Confirm => sub { return $self->{_confirm_result} }
 	, Prompt => sub { return $self->{_prompt_result}; } });
+	$self->{_reqs_count} = 0;
 	Mozilla::ObserverService::Register({
 		'http-on-examine-response' => sub {
+			$self->_N('http-on-examine-response');
 			my $channel = shift;
 			$self->{_response_status} = $channel->responseStatus;
-		},
+			$self->{_reqs_count}-- if $self->{_reqs_count} > 0;
+		}, "http-on-modify-request" => sub {
+			$self->_N('http-on-modify-request');
+			$self->{_reqs_count}++;
+		}, "http-on-examine-cached-response" => sub {
+			$self->_N('http-on-examine-cached-response');
+			$self->{_reqs_count}-- if $self->{_reqs_count} > 0;
+ 		}
 	});
 	$self->{_console_handle} = Mozilla::ConsoleService::Register(sub {
 		my $msg = shift;
@@ -127,6 +142,32 @@ sub new {
 	return $self;
 }
 
+sub _countdown_requests {
+	my ($self) = @_;
+	$self->_N(join("", Carp::longmess()) . "_countdown_requests");
+	$self->_wait_for_gtk;
+	my $n = 1;
+	while ($self->{_reqs_count} > 0) {
+		$self->_N("iteration $n");
+		my $rq = $self->{_reqs_count};
+		$self->_wait_for_gtk;
+
+		next if $rq != $self->{_reqs_count};
+		if (($n++ % 50) == 0) {
+			$self->_N("forcing reqs count");
+			$self->{_reqs_count}--;
+		}
+	}
+	$self->_N("_countdown_requests finish");
+}
+
+sub _wait_while_busy {
+	my $self = shift;
+	$self->_countdown_requests; 
+	$self->{$_} = undef for qw(forms cur_form links images);
+	return 1;
+}
+ 
 =head1 ACCESSORS
 
 =head2 $mech->status
@@ -322,11 +363,21 @@ sub get_html_element_by_id {
 }
 
 sub _wait_for_gtk {
-	my $run = 1;
+	my $self = shift;
 	my $t = $ENV{MMG_TIMEOUT} || 200;
-	Glib::Timeout->add($t, sub { undef $run; });
 	no warnings 'uninitialized';
-	Gtk2->main_iteration while ($run || Gtk2->events_pending);
+	do {
+		$self->_N("_wait_for_gtk");
+		my $run = 1;
+		Glib::Timeout->add($t, sub {
+			$self->_N("TIMEOUT");
+			$run = 0;
+			Gtk2->main_quit;
+		}, undef, -100);
+		Mozilla::DOM::ComputedStyle::Set_Poll_Timeout();
+		capture(sub { Gtk2->main while $run });
+		Mozilla::DOM::ComputedStyle::Unset_Poll_Timeout();
+	} while (Gtk2->events_pending);
 }
 
 sub _with_gesture_do {
