@@ -6,6 +6,7 @@ use base 'Class::Accessor';
 use Mozilla::DOM;
 use X11::GUITest qw(GetWindowPos MoveMouseAbs);
 use Mozilla::DOM::ComputedStyle;
+use Carp;
 
 __PACKAGE__->mk_accessors(qw(element element_top element_left window_x
 			zoom window_y dom_window window_id));
@@ -83,6 +84,8 @@ sub new {
 
 sub element_mouse_move {
 	my ($self, $by_x, $by_y) = @_;
+	confess "No x given " unless defined($by_x);
+	confess "No y given " unless defined($by_y);
 	_D("element_mouse_move $by_x $by_y");
 	my ($left, $top) = $self->_adjust_scrolls($by_x, $by_y);
 	_D("after _adjust_scrolls $left $top");

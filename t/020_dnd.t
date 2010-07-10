@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use URI::file;
 
 BEGIN { use_ok('Mozilla::Mechanize::GUITester'); }
@@ -25,5 +25,8 @@ $mech->x_mouse_up($e, 10, 10);
 $g = $mech->gesture($e);
 is($g->element_x, $g->window_x + 64);
 is($g->element_y, $g->window_y + 133);
+
+eval { $mech->x_click($e); };
+like($@, qr/020/);
 
 $mech->close;

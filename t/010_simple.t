@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 19;
+use Test::More tests => 20;
 use URI::file;
 use Data::Dumper;
 
@@ -39,14 +39,15 @@ $mech->set_confirm_result(1);
 $mech->x_click($c, 3, 3);
 like($mech->last_alert, qr/confirmed/);
 
+my $ta = $mech->get_html_element_by_id("tar", "TextArea");
+is($mech->qi_ns($ta)->GetInnerHTML, "Sote\n");
+
 $mech->set_fields(che => 1, tar => 'Te Ar');
 my $ch = $mech->get_html_element_by_id("che", "Input");
 is($ch->GetChecked, 1);
 is($ch->GetValue, 99);
 
 is($mech->qi($mech->get_html_element_by_id("che"), "Input")->GetValue, 99);
-
-my $ta = $mech->get_html_element_by_id("tar", "TextArea");
 is($ta->GetValue, 'Te Ar');
 
 $mech->set_fields(che => undef, tar => 'Te Ar');

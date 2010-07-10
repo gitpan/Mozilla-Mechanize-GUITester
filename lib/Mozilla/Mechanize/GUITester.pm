@@ -25,7 +25,7 @@ use Mozilla::DOM::ComputedStyle;
 use Carp;
 use Test::More;
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 sub _N {
 	my ($self, $msg) = @_;
@@ -382,6 +382,7 @@ sub _wait_for_gtk {
 
 sub _with_gesture_do {
 	my ($self, $elem, $func) = @_;
+	$self->_wait_for_gtk;
 	my $g = $self->gesture($elem);
 	$func->($g);
 	$self->_wait_for_gtk;
@@ -541,6 +542,17 @@ sub qi {
 	confess "# No element" unless $_[1];
 	my $cl = 'Mozilla::DOM::HTML' . ($_[2] || '') . "Element";
 	return $_[1]->QueryInterface($cl->GetIID);
+}
+
+=head2 $mech->qi_ns($elem, $interface)
+
+Queries interface Mozilla::DOM::NSHTML$interfaceElement of C<$elem>.
+
+=cut
+sub qi_ns {
+	confess "# No element" unless $_[1];
+	my $c = "Mozilla::DOM::NSHTML" . ($_[2] || "") . "Element";
+	return $_[1]->QueryInterface($c->GetIID);
 }
 
 1;

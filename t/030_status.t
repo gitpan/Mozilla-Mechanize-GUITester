@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 62;
+use Test::More tests => 52;
 
 BEGIN { use_ok('Mozilla::Mechanize::GUITester'); }
 
@@ -11,7 +11,6 @@ isa_ok($mech, 'Mozilla::Mechanize::GUITester');
 for (1 .. 10) {
 	ok($mech->get('http://search.cpan.org'));
 	is($mech->status, 200);
-	is_deeply($mech->console_messages, []);
 	like($mech->title, qr/CPAN Search Site/);
 	$mech->submit_form(fields => { query => 'Test' });
 	like($mech->content, qr/Test::More/);
