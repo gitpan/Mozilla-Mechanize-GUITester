@@ -25,7 +25,7 @@ use Mozilla::DOM::ComputedStyle;
 use Carp;
 use Test::More;
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 sub _N {
 	my ($self, $msg) = @_;
@@ -503,14 +503,14 @@ fired.
 
 =cut
 sub x_change_select {
-	my ($self, $input, $opno) = @_;
+	my ($self, $input, $opno, $x, $y) = @_;
 	my $times = $opno - $input->GetSelectedIndex;
 	my $key = "{DOW}";
 	if ($times < 0) {
 		$key = "{UP}";
 		$times *= -1;
 	}
-	$self->x_click($input, 4, 4);
+	$self->x_click($input, $x // 7, $y // 7);
 	$self->x_send_keys($key) for (1 .. $times);
 	$self->x_send_keys('{ENT}');
 }

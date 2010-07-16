@@ -35,12 +35,21 @@ sub _calculate_element_position {
 	$self->element_left($left);
 }
 
+sub _adjust_one {
+	my ($e, $what, $d, $max) = @_;
+	my $set = "SetScroll$what";
+	my $get = "GetScroll$what";
+	my $g = $e->$get or return;
+	_D("begin _adjust_one $g $what $d $max");
+	$e->$set($g + $d) if ($d < 0 || $d > $max);
+}
+
 sub _adjust_scrolls {
 	my ($self, $by_x, $by_y) = @_;
+	confess "No element" unless $self->element;
 	my $iid = Mozilla::DOM::NSHTMLElement->GetIID;
 	my $elem = $self->element->QueryInterface(Mozilla::DOM::Node->GetIID);
-	my $pos = Get_Computed_Style_Property($self->dom_window, $elem
-				, "position");
+	my $pos = Get_Computed_Style_Property($self->dom_window, $elem , "position");
 
 	$elem->QueryInterface($iid)->ScrollIntoView(1);
 	my ($left, $top) = ($self->element_left, $self->element_top);
@@ -54,17 +63,13 @@ sub _adjust_scrolls {
 		eval { $e = $elem->QueryInterface($iid); };
 		next unless $e;
 
-		# Because of the rounding we may get scroll coordinates
-		# greater than needed. Be on the safe side - decrement by 1.
-		# It cannot be less than 0 anyhow ...
-		# However it is really untestable :(
-		$e->SetScrollTop($e->GetScrollTop + $by_y - 1)
-			if $e->GetScrollTop;
-		$e->SetScrollLeft($e->GetScrollLeft + $by_x - 1)
-			if $e->GetScrollLeft;
+		_adjust_one($e, "Top", $by_y, $e->GetClientHeight);
+		_adjust_one($e, "Left", $by_x, $e->GetClientWidth);
 
-		_D("adjusting scrolls $left $top " . $e->GetScrollLeft
-			. " " . $e->GetScrollTop);
+		_D("adjusting scrolls $left $top "
+			. Mozilla::Mechanize::GUITester->qi($e)->GetTagName . " "
+			. $e->GetScrollLeft . " " . $e->GetScrollTop);
+
 		$top -= $e->GetScrollTop * $self->zoom;
 		$left -= $e->GetScrollLeft * $self->zoom;
 	}

@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 16;
+use Test::More tests => 21;
 use URI::file;
 
 BEGIN { use_ok('Mozilla::Mechanize::GUITester'); }
@@ -26,8 +26,21 @@ $mech->x_click($e, 1, 1);
 is($mech->pull_alerts, "clicked\n");
 
 my $e2 = $mech->get_html_element_by_id("but2");
-$mech->x_click($e, 110, 110);
+$mech->x_click($e2, 7, 7);
 is($mech->pull_alerts, "clicked 2\n");
+
+my $ld = $mech->get_html_element_by_id("long_div");
+$mech->x_click($ld, 10, 10);
+is_deeply($mech->console_messages, []) or exit 1;
+is($mech->pull_alerts, "long_div click 10 10\n") or exit 1;
+
+$mech->x_click($ld, 800, 1800);
+is($mech->pull_alerts, "long_div click 185 185\n") or exit 1;
+
+my $d2 = $mech->get_html_element_by_id("div2");
+$mech->x_click($d2, -5, -5);
+is_deeply($mech->console_messages, []) or exit 1;
+is($mech->pull_alerts, "div1 click\n") or exit 1;
 
 $mech->x_resize_window(1000, 700);
 
