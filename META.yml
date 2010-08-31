@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Mozilla-Mechanize-GUITester
-version:            0.22
+version:            0.23
 abstract:           Mozilla DHTML/Javascript testing
 author:
     - Boris Sukholitko (boriss@gmail.com)

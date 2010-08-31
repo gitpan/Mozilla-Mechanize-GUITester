@@ -18,14 +18,14 @@ use Mozilla::ObserverService;
 use Mozilla::SourceViewer;
 use X11::GUITest qw(ClickMouseButton :CONST SendKeys ReleaseKey
 		PressMouseButton ReleaseMouseButton PressKey
-		ResizeWindow GetScreenRes);
+		ResizeWindow GetScreenRes QuoteStringForSendKeys);
 use File::Temp qw(tempdir);
 use Mozilla::ConsoleService;
 use Mozilla::DOM::ComputedStyle;
 use Carp;
 use Test::More;
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 sub _N {
 	my ($self, $msg) = @_;
@@ -454,6 +454,7 @@ Please see its documentation for possible C<$keystroke> values.
 =cut
 sub x_send_keys {
 	my ($self, $keys) = @_;
+	confess "Undefined keys" unless defined $keys;
 	SendKeys($keys) or confess "Unable to send $keys";
 	$self->_wait_for_gtk;
 }
@@ -492,7 +493,7 @@ sub x_change_text {
 	my ($self, $input, $val) = @_;
 	$input->SetValue("");
 	$self->x_click($input, 4, 4);
-	$self->x_send_keys($val);
+	$self->x_send_keys($val ? QuoteStringForSendKeys($val) : $val);
 	$self->x_send_keys('{TAB}');
 }
 
